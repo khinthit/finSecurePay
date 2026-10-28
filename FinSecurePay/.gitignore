@@ -1,0 +1,23 @@
+# Build output
+[Bb]in/
+[Oo]bj/
+publish/
+test-results/
+TestResults/
+
+# IDE
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+
+# Local secrets and environment overrides - never commit these
+appsettings.Development.json
+appsettings.*.local.json
+*.env
+.env
+
+# Scan reports produced by the pipeline
+nuget-audit.txt
+trivy-report.txt
