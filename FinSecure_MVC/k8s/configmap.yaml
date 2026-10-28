@@ -1,0 +1,10 @@
+# Double underscore maps to the "Validation" section of appsettings.json
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: finsecure-config
+  namespace: finsecure
+data:
+  Validation__MaxAmount: "10000"
+  Validation__AllowedCurrencies: "SGD,USD,EUR"
+  ASPNETCORE_ENVIRONMENT: "Production"
