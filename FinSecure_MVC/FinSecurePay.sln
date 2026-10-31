@@ -1,0 +1,36 @@
+
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{53444F72-0BC2-43E9-A788-722E54735A8A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinSecurePay.Api", "src\FinSecurePay.Api\FinSecurePay.Api.csproj", "{915A25BC-AC2B-4080-A742-079F8AA8E083}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{10B74366-64D2-4CDC-9872-231CEB87DEEB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinSecurePay.Tests", "tests\FinSecurePay.Tests\FinSecurePay.Tests.csproj", "{BEB64578-8EC6-4BC8-9B0D-F3ECFD81B0C2}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{915A25BC-AC2B-4080-A742-079F8AA8E083}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{915A25BC-AC2B-4080-A742-079F8AA8E083}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{915A25BC-AC2B-4080-A742-079F8AA8E083}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{915A25BC-AC2B-4080-A742-079F8AA8E083}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BEB64578-8EC6-4BC8-9B0D-F3ECFD81B0C2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BEB64578-8EC6-4BC8-9B0D-F3ECFD81B0C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BEB64578-8EC6-4BC8-9B0D-F3ECFD81B0C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BEB64578-8EC6-4BC8-9B0D-F3ECFD81B0C2}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{915A25BC-AC2B-4080-A742-079F8AA8E083} = {53444F72-0BC2-43E9-A788-722E54735A8A}
+		{BEB64578-8EC6-4BC8-9B0D-F3ECFD81B0C2} = {10B74366-64D2-4CDC-9872-231CEB87DEEB}
+	EndGlobalSection
+EndGlobal
