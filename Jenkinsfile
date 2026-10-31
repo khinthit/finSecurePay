@@ -1,5 +1,6 @@
 // FinSecure Pay - CI/CD pipeline
 // Replace <dockerhub-user>, <your-sonar-org>, <your-project-key> and the NOTIFY address.
+// FinSecure Pay - CI/CD pipeline (Task 4: core stages; security stages added in Task 5)
 pipeline {
   agent any
 
@@ -11,7 +12,6 @@ pipeline {
     NOTIFY  = 'khinthitthitmaw@gmail.com'
     DOTNET_CLI_TELEMETRY_OPTOUT = '1'
     DOTNET_NOLOGO = '1'
-    PATH = "/var/lib/jenkins/.dotnet/tools:${env.PATH}"
   }
 
   options {
@@ -45,48 +45,8 @@ pipeline {
       }
     }
 
-    stage('Security Checks') {
-      stages {
-        stage('Code Quality (SonarQube Cloud)') {
-          steps {
-            withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
-              sh '''
-                dotnet sonarscanner begin /k:"<your-project-key>" /o:"<your-sonar-org>" \
-                  /d:sonar.host.url="https://sonarcloud.io" \
-                  /d:sonar.token="$SONAR_TOKEN" \
-                  /d:sonar.qualitygate.wait=true
-                dotnet build -c Release --no-restore
-                dotnet sonarscanner end /d:sonar.token="$SONAR_TOKEN"
-              '''
-            }
-          }
-        }
-        stage('Dependency Audit (NuGet)') {
-          steps {
-            sh '''
-              dotnet list src/FinSecurePay.Api/FinSecurePay.Api.csproj package \
-                --vulnerable --include-transitive | tee nuget-audit.txt
-              if grep -qE "High|Critical" nuget-audit.txt; then
-                echo "BLOCKED: High/Critical vulnerable NuGet package found"
-                exit 1
-              fi
-            '''
-          }
-          post { always { archiveArtifacts artifacts: 'nuget-audit.txt', allowEmptyArchive: true } }
-        }
-      }
-    }
-
     stage('Container Build') {
       steps { sh 'docker build --build-arg APP_VERSION=$VERSION -t $IMAGE:$VERSION .' }
-    }
-
-    stage('Image Scan') {
-      steps {
-        sh '''trivy image --severity CRITICAL,HIGH --ignore-unfixed \
-              --exit-code 1 --format table --output trivy-report.txt $IMAGE:$VERSION'''
-      }
-      post { always { archiveArtifacts artifacts: 'trivy-report.txt', allowEmptyArchive: true } }
     }
 
     stage('Push') {
@@ -111,7 +71,6 @@ pipeline {
         '''
       }
       post {
-        // Automatic rollback if the new version never becomes Ready
         failure { sh 'kubectl -n finsecure rollout undo deployment/finsecure-pay || true' }
       }
     }
