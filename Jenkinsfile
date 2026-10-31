@@ -77,7 +77,7 @@ pipeline {
                   /d:sonar.qualitygate.wait=true
                 dotnet build -c Release --no-restore --no-incremental
                 dotnet test -c Release --no-build --collect:"XPlat Code Coverage" \
-                  -- DataCollectionRunSettings.DataCollection.DataCollector.Configuration.Format=opencover
+                  -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
                 dotnet sonarscanner end /d:sonar.token="$SONAR_TOKEN"
               '''
             }
