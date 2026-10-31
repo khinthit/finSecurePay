@@ -1,15 +1,20 @@
 // FinSecure Pay - CI/CD pipeline
 // Replace <dockerhub-user>, <your-sonar-org>, <your-project-key> and the NOTIFY address.
 // FinSecure Pay - CI/CD pipeline (Task 4: core stages; security stages added in Task 5)
+// FinSecure Pay - CI/CD pipeline with DevSecOps gates
 pipeline {
   agent any
 
   environment {
-    IMAGE   = 'kate391/finsecure-pay'
-    VERSION = "1.0.${env.BUILD_NUMBER}"
-    CLUSTER = 'finsecure'
-    REGION  = 'ap-southeast-1'
-    NOTIFY  = 'khinthitthitmaw@gmail.com'
+    IMAGE         = 'kate391/finsecure-pay'
+    VERSION       = "1.0.${env.BUILD_NUMBER}"
+    CLUSTER       = 'finsecure'
+    REGION        = 'ap-southeast-1'
+    NOTIFY        = 'khinthitthitmaw@gmail.com'
+    SONAR_ORG     = 'khinthit'                 // your SonarQube Cloud organization key
+    SONAR_PROJECT = 'khinthit_finSecurePay'    // your SonarQube Cloud project key
+    DOTNET_ROOT   = '/usr/lib/dotnet'          // output of: dirname $(readlink -f $(which dotnet))
+    PATH          = "/var/lib/jenkins/.dotnet/tools:${env.PATH}"
     DOTNET_CLI_TELEMETRY_OPTOUT = '1'
     DOTNET_NOLOGO = '1'
   }
@@ -45,8 +50,54 @@ pipeline {
       }
     }
 
+    stage('Security Checks') {
+      stages {
+        stage('Dependency Audit (NuGet)') {
+          steps {
+            sh '''
+              dotnet list src/FinSecurePay.Api/FinSecurePay.Api.csproj package \
+                --vulnerable --include-transitive | tee nuget-audit.txt
+              if grep -qE "High|Critical" nuget-audit.txt; then
+                echo "SECURITY GATE: High/Critical vulnerable NuGet package found - release blocked"
+                exit 1
+              fi
+            '''
+          }
+          post { always { archiveArtifacts artifacts: 'nuget-audit.txt', allowEmptyArchive: true } }
+        }
+
+        stage('Code Quality (SonarQube Cloud)') {
+          steps {
+            withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
+              sh '''
+                dotnet sonarscanner begin /k:"$SONAR_PROJECT" /o:"$SONAR_ORG" \
+                  /d:sonar.host.url="https://sonarcloud.io" \
+                  /d:sonar.token="$SONAR_TOKEN" \
+                  /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml" \
+                  /d:sonar.qualitygate.wait=true
+                dotnet build -c Release --no-restore --no-incremental
+                dotnet test -c Release --no-build --collect:"XPlat Code Coverage" \
+                  -- DataCollectionRunSettings.DataCollection.DataCollector.Configuration.Format=opencover
+                dotnet sonarscanner end /d:sonar.token="$SONAR_TOKEN"
+              '''
+            }
+          }
+        }
+      }
+    }
+
     stage('Container Build') {
       steps { sh 'docker build --build-arg APP_VERSION=$VERSION -t $IMAGE:$VERSION .' }
+    }
+
+    stage('Image Scan') {
+      steps {
+        sh '''
+          trivy image --severity CRITICAL,HIGH --ignore-unfixed \
+            --exit-code 1 --format table --output trivy-report.txt $IMAGE:$VERSION
+        '''
+      }
+      post { always { archiveArtifacts artifacts: 'trivy-report.txt', allowEmptyArchive: true } }
     }
 
     stage('Push') {
