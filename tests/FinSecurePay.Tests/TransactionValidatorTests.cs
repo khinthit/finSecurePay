@@ -55,6 +55,6 @@ public class TransactionValidatorTests
     {
         var r = _validator.Validate(Tx("BAD", 0m, "XYZ", "GAMBLING"));
         Assert.False(r.Valid);
-        Assert.Equal(5, r.Reasons.Count);   // change 4 to 5 to demo a failing pipeline (Task 4)
+        Assert.Equal(4, r.Reasons.Count);   // change 4 to 5 to demo a failing pipeline (Task 4)
     }
 }
