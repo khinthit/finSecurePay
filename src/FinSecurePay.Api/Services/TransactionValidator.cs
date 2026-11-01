@@ -9,9 +9,11 @@ namespace FinSecurePay.Api.Services;
 /// </summary>
 public class TransactionValidator
 {
-    private static readonly Regex AccountPattern = new("^ACC[0-9]{6}$", RegexOptions.Compiled);
+   
+	private static readonly Regex AccountPattern =
+	new("^ACC[0-9]{6}$", RegexOptions.Compiled, TimeSpan.FromMilliseconds(100));
 
-    private static readonly HashSet<string> BlockedMerchants =
+	private static readonly HashSet<string> BlockedMerchants =
         new(StringComparer.OrdinalIgnoreCase) { "GAMBLING", "CRYPTO_ATM" };
 
     private readonly decimal _maxAmount;

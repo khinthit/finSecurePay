@@ -41,7 +41,7 @@ app.MapHealthChecks("/health/ready");
 
 app.MapMetrics();                     // GET /metrics
 
-app.Run();
+await app.RunAsync();
 
 // Lets test projects reference the entry point if integration tests are added later.
 public partial class Program { }

@@ -1,6 +1,3 @@
-// FinSecure Pay - CI/CD pipeline
-// Replace <dockerhub-user>, <your-sonar-org>, <your-project-key> and the NOTIFY address.
-// FinSecure Pay - CI/CD pipeline (Task 4: core stages; security stages added in Task 5)
 // FinSecure Pay - CI/CD pipeline with DevSecOps gates
 pipeline {
   agent any
@@ -11,10 +8,10 @@ pipeline {
     CLUSTER       = 'finsecure'
     REGION        = 'ap-southeast-1'
     NOTIFY        = 'khinthitthitmaw@gmail.com'
-    SONAR_ORG     = 'khinthit'                 // your SonarQube Cloud organization key
-    SONAR_PROJECT = 'khinthit_finSecurePay'    // your SonarQube Cloud project key
-    DOTNET_ROOT   = '/usr/lib/dotnet'          // output of: dirname $(readlink -f $(which dotnet))
-    PATH          = "/var/lib/jenkins/.dotnet/tools:${env.PATH}"
+    SONAR_ORG     = 'khinthit'                 // SonarQube Cloud organization key
+    SONAR_PROJECT = 'khinthit_finSecurePay'    // SonarQube Cloud project key
+    DOTNET_ROOT   = '/usr/lib/dotnet'          // .NET location on the Jenkins server
+    SONAR_SCANNER = '/var/lib/jenkins/.dotnet/tools/dotnet-sonarscanner'
     DOTNET_CLI_TELEMETRY_OPTOUT = '1'
     DOTNET_NOLOGO = '1'
   }
@@ -70,15 +67,16 @@ pipeline {
           steps {
             withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
               sh '''
-                dotnet sonarscanner begin /k:"$SONAR_PROJECT" /o:"$SONAR_ORG" \
+                "$SONAR_SCANNER" begin /k:"$SONAR_PROJECT" /o:"$SONAR_ORG" \
                   /d:sonar.host.url="https://sonarcloud.io" \
                   /d:sonar.token="$SONAR_TOKEN" \
                   /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml" \
+                  /d:sonar.exclusions="publish/**,**/bin/**,**/obj/**,test-results/**" \
                   /d:sonar.qualitygate.wait=true
                 dotnet build -c Release --no-restore --no-incremental
                 dotnet test -c Release --no-build --collect:"XPlat Code Coverage" \
                   -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
-                dotnet sonarscanner end /d:sonar.token="$SONAR_TOKEN"
+                "$SONAR_SCANNER" end /d:sonar.token="$SONAR_TOKEN"
               '''
             }
           }
