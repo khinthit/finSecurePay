@@ -21,6 +21,7 @@ spec:
       labels:
         app: finsecure-pay
     spec:
+      automountServiceAccountToken: false
       securityContext:
         runAsNonRoot: true
       containers:
@@ -37,9 +38,11 @@ spec:
             requests:
               cpu: 100m
               memory: 128Mi
+              ephemeral-storage: 64Mi
             limits:
               cpu: 500m
               memory: 256Mi
+              ephemeral-storage: 256Mi
           readinessProbe:
             httpGet:
               path: /health/ready
