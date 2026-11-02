@@ -14,7 +14,7 @@ public class TransactionValidatorTests
     [Fact]
     public void ValidTransaction_IsApproved()
     {
-        var r = _validator.Validate(Tx("ACC1234567", 250m, "SGD", "RETAIL"));
+        var r = _validator.Validate(Tx("ACC123456", 250m, "SGD", "RETAIL"));
         Assert.True(r.Valid);
         Assert.Empty(r.Reasons);
     }
